@@ -51,25 +51,26 @@ public class CalculatorImpl implements Calculator {
         }
 
         List<String> sNumbers = new ArrayList<String>();
-        List<Integer> n = new ArrayList<Integer>();
 
         // Get the string representations
         Collections.addAll(sNumbers, numbersToAdd.trim().split(delimiterRegex));
 
         // Parse them to integers (ignore errors here, except for negatives)
+        // Sum at the same time
+        Integer total = new Integer(0);
         List<String> negatives = new ArrayList<String>();
-        sNumbers.forEach(sNumber -> {
+        for (String sNumber : sNumbers) {
             try {
                 Integer i = Integer.parseInt(sNumber.trim());
                 if (i < 0) {
                     negatives.add(i.toString());
                 }
-                n.add(i);
+                total = this.sum(total, i);
             } catch (NumberFormatException e) {
                 // Catches non-numbers including the empty string case - just
                 // ignore
             }
-        });
+        }
 
         // Throw error if any negatives
         if (!negatives.isEmpty()) {
@@ -80,8 +81,7 @@ public class CalculatorImpl implements Calculator {
             throw new RuntimeException("negatives not allowed:" + negs);
         }
 
-        // Aggregate with reduce
-        return n.stream().reduce(0, this::sum);
+        return total;
     }
 
     /**
