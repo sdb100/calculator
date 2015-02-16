@@ -12,89 +12,93 @@ import java.util.regex.Pattern;
  */
 public class CalculatorImpl implements Calculator {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int add(String numbers) {
-		String delimiterRegex = "[,\n]";
-		String numbersToAdd = numbers;
-		
-		// Find out if there's a user-defined delimiter
-		if(numbersToAdd.startsWith("//")){
-			Pattern p = Pattern.compile("//(.+)\n(.*)");
-			Matcher m = p.matcher(numbersToAdd);
-			
-			if(m.matches()){
-				String delimiter = m.group(1);
-				numbersToAdd = m.group(2);
-				if(!delimiter.isEmpty()){
-					// Try to match square brackets for groups
-					p = Pattern.compile("\\[(.+)\\]+");
-					m = p.matcher(delimiter);
-					if(m.matches()){
-						StringBuffer ds = new StringBuffer();
-						// May be multiple groups
-						for(int i = 1; i < m.groupCount(); i++){
-							if(i > 1){
-								ds.append("|");
-							}
-							ds.append(Pattern.quote(m.group(i)));
-						}
-						delimiterRegex = ds.toString();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int add(String numbers) {
+        String delimiterRegex = "[,\n]";
+        String numbersToAdd = numbers;
 
-					}else{
-						delimiterRegex = Pattern.quote(delimiter);
-					}
-				}
-			}
-		}
-				
-		List<String> sNumbers = new ArrayList<String>();
-		List<Integer> n = new ArrayList<Integer>();
-		
-		// Get the string representations
-		Collections.addAll(sNumbers, numbersToAdd.trim().split(delimiterRegex));
-		
-		// Parse them to integers (ignore errors here, except for negatives)
-		List<String> negatives = new ArrayList<String>();
-		sNumbers.forEach(sNumber -> {
-			try{
-				Integer i = Integer.parseInt(sNumber.trim());
-				if(i < 0){
-					negatives.add(i.toString());
-				}
-				n.add(i);
-			}catch(NumberFormatException e){
-				// Catches non-numbers including the empty string case - just ignore
-			}
-		});
-		
-		// Throw error if any negatives
-		if(!negatives.isEmpty()){
-			StringBuffer negs = new StringBuffer();
-			negatives.forEach(neg -> {
-				negs.append(" ").append(neg);
-			});
-			throw new RuntimeException("negatives not allowed:" + negs);
-		}
-		
-		// Aggregate with reduce
-		return n.stream().reduce(0, this::sum);
-	}
+        // Find out if there's a user-defined delimiter
+        if (numbersToAdd.startsWith("//")) {
+            Pattern p = Pattern.compile("//(.+)\n(.*)");
+            Matcher m = p.matcher(numbersToAdd);
 
-	/**
-	 * Sum two Integers, ignoring values over 1000.
-	 * @param a lhs integer
-	 * @param b rhs integer
-	 * @return the sum
-	 */
-	private Integer sum(Integer a, Integer b){
-		if(b > 1000){
-			return a;
-		}else{
-			return a+b;
-		}
-	}
-	
+            if (m.matches()) {
+                String delimiter = m.group(1);
+                numbersToAdd = m.group(2);
+                if (!delimiter.isEmpty()) {
+                    // Try to match square brackets for groups
+                    p = Pattern.compile("\\[(.+)\\]+");
+                    m = p.matcher(delimiter);
+                    if (m.matches()) {
+                        StringBuffer ds = new StringBuffer();
+                        // May be multiple groups
+                        for (int i = 1; i < m.groupCount(); i++) {
+                            if (i > 1) {
+                                ds.append("|");
+                            }
+                            ds.append(Pattern.quote(m.group(i)));
+                        }
+                        delimiterRegex = ds.toString();
+
+                    } else {
+                        delimiterRegex = Pattern.quote(delimiter);
+                    }
+                }
+            }
+        }
+
+        List<String> sNumbers = new ArrayList<String>();
+        List<Integer> n = new ArrayList<Integer>();
+
+        // Get the string representations
+        Collections.addAll(sNumbers, numbersToAdd.trim().split(delimiterRegex));
+
+        // Parse them to integers (ignore errors here, except for negatives)
+        List<String> negatives = new ArrayList<String>();
+        sNumbers.forEach(sNumber -> {
+            try {
+                Integer i = Integer.parseInt(sNumber.trim());
+                if (i < 0) {
+                    negatives.add(i.toString());
+                }
+                n.add(i);
+            } catch (NumberFormatException e) {
+                // Catches non-numbers including the empty string case - just
+                // ignore
+            }
+        });
+
+        // Throw error if any negatives
+        if (!negatives.isEmpty()) {
+            StringBuffer negs = new StringBuffer();
+            negatives.forEach(neg -> {
+                negs.append(" ").append(neg);
+            });
+            throw new RuntimeException("negatives not allowed:" + negs);
+        }
+
+        // Aggregate with reduce
+        return n.stream().reduce(0, this::sum);
+    }
+
+    /**
+     * Sum two Integers, ignoring values over 1000.
+     * 
+     * @param a
+     *            lhs integer
+     * @param b
+     *            rhs integer
+     * @return the sum
+     */
+    private Integer sum(Integer a, Integer b) {
+        if (b > 1000) {
+            return a;
+        } else {
+            return a + b;
+        }
+    }
+
 }
